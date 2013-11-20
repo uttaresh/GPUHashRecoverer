@@ -9,7 +9,7 @@ __global__ void  mutateAndCheck(char *wordArray, char *targetHash){
     /* All words that BEGIN in our assigned range should have their hashes
        checked by our thread. Each thread is in charge of a section of
        48 chars */
-    int i=BlockDim.x*BlockIdx.x+ThreadIdx.x;    // Starting index
+    int i=48*(BlockDim.x*BlockIdx.x+ThreadIdx.x);    // Starting index
     
     // Does a word start exactly at the start of our section?
     if (i > 0) if (wordArray[i-1]==DELIM) i--;
