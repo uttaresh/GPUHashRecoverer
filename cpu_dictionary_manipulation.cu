@@ -1,8 +1,7 @@
 #include<stdio.h>
-
+#include "uttaresh.h"
 /* Function declarations */
-unsigned int  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *new_dict, 
-                                char *sequences, char *substitutions);
+unsigned int  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *new_dict);
 void add2dict(char *dict_end,  char *word, unsigned int &size_new_dict);
 
 
@@ -25,7 +24,7 @@ void add2dict(char *dict_end,  char *word, unsigned int &size_new_dict);
 
     @return                 returns the size of the new dictionary in bytes
 **/
-unsigned int  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *new_dict, 
+size_t  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *new_dict, 
                                 char *sequences, char *substitutions){
 
     // For an original string of size n including null terminator, we need:
@@ -98,7 +97,7 @@ unsigned int  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *n
         /* Increment index i by 1 to get to start of next word */
         i++;
     }
-    return size_new_dict;
+    return (size_t)size_new_dict;
 }
 
 /*  
