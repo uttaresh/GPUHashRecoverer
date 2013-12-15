@@ -1,0 +1,11 @@
+getMD5 function generates hashes from CPU
+For the GPU version, the function will be the same. Instead of CPU, call for MD5 calculation will be replaced by a kernel
+
+You can take the preprocessing code and use it the way I have used to generate 64 byte aligned array
+to test your program, you can use the cpu_main.c and it's functions to test everything that you develop
+
+To see if the hash being generated is of the string you expect, you can try various online utilities
+https://crackstation.net/ - for reverse lookup in a 15GB wordlist
+http://www.md5hashgenerator.com/ - for generation md5 for string
+
+The code does not consider strings more than 55 bytes. 64 byte is the value after padding and appending the length of string. The string cannot be more than 55 bytes for this to happen. If it has 56 byte, the preprocessed word will have to be 128 byte long as the padding will have to continue till 120 byte and the last 8 byte be reserved for storing length. For the preprocessed word to be of only 64 byte, the max string that it can accomodate is 55 byte.
