@@ -5,10 +5,6 @@
 #include<stdio.h>
 #include<string.h>
 
-typedef struct dict_t{
-    char *values;
-    unsigned long num_entries;
-} dict_t;
 
 // Top 20 most used number sequences
 int sequences[] = { 123,1234,12345,123456,1234567,12345678,
@@ -29,25 +25,25 @@ void init_subs(){
     subs = (char *)calloc(256,sizeof(char));    
     
     // Assign symbols to lowercase letters
-    subs['a'] = '@';
-    subs['b'] = '8';
-    subs['c'] = '(';
-    subs['d'] = ')';
-    subs['e'] = '3';
-    subs['g'] = '6';
-    subs['h'] = '#';
-    subs['i'] = '!';
-    subs['l'] = '1';
-    subs['o'] = '0';
-    subs['r'] = '2';
-    subs['s'] = '$';
-    subs['t'] = '7';
-    subs['y'] = '%';
-    subs['z'] = '2';
+    subs[(int)'a'] = '@';
+    subs[(int)'b'] = '8';
+    subs[(int)'c'] = '(';
+    subs[(int)'d'] = ')';
+    subs[(int)'e'] = '3';
+    subs[(int)'g'] = '6';
+    subs[(int)'h'] = '#';
+    subs[(int)'i'] = '!';
+    subs[(int)'l'] = '1';
+    subs[(int)'o'] = '0';
+    subs[(int)'r'] = '2';
+    subs[(int)'s'] = '$';
+    subs[(int)'t'] = '7';
+    subs[(int)'y'] = '%';
+    subs[(int)'z'] = '2';
 
     // Assign symbols to capital letters
     for (i='A';i<='Z';i++)
-        subs[i] = i + ('a' - 'A');
+        subs[(int)i] = i + ('a' - 'A');
 }
 
 #endif

@@ -2,7 +2,7 @@ CC 			= gcc
 DEBUG 		= -g
 CFLAGS		= -c -Wall $(DEBUG) -O3
 LFLAGS		= $(DEBUG)
-DEPEND		= support.o
+DEPEND		= support.o dictman.o
 CPUEXE		= cpu_md5
 CPUOBJ		= $(DEPEND) cpu_md5.o cpu_main.o
 
@@ -10,7 +10,7 @@ NVCC        = nvcc
 NVCC_FLAGS  = -O3 -I/usr/local/cuda/include -arch=sm_20
 NVLD_FLAGS  = -lcudart -L/usr/local/cuda/lib64
 GPUEXE		= cuda_md5
-GPUOBJ		= cuda_main.o dictman.o
+GPUOBJ		= cuda_main.o
 
 $(CPUEXE): $(CPUOBJ)
 	$(CC) $(CPUOBJ) -o $(CPUEXE)
@@ -18,7 +18,7 @@ $(CPUEXE): $(CPUOBJ)
 cpu%.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
 	
-cuda_main.o: cuda_main.cu kernel.cu support.cu support.h cuda_md5.h
+cuda_main.o: cuda_main.cu kernel.cu support.cu support.h cuda_md5.h dictman.h
 	$(NVCC) -c -o $@ cuda_main.cu $(NVCC_FLAGS)
 		
 $(GPUEXE): $(GPUOBJ)
