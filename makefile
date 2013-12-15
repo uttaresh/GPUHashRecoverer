@@ -1,2 +1,2 @@
 dictmake:	
-	gcc -Wall dictman.c 
+	gcc -Wall dictman.c -ggdb

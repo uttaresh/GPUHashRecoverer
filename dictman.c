@@ -1,36 +1,34 @@
 #include "dictman.h"
 /* Function declarations */
-unsigned long  mutateAndCheck(char *old_dict, unsigned int size_old_dict, char *new_dict);
+unsigned long  mutateAndCheck(char *old_dict, unsigned int old_dict->num_entries, char *new_dict);
 void add2dict(char *dict_end,  char *word);
 
 
 /**
- *  CPU Function that takes in a simple dictionary of plaintext words separated by 
- *  a delimiter(NULL) and returns a better dictionary for stronger password cracking.
- *  @params orig_dict       pointer to array containing dictionary of words, stored
-                            either in constant or shared memory. this is an array of null
-                            terminated strings
-            size_old_dict   size in bytes of the passed in, original dictionary
-            new_dict        pointer to the new array containing the null-terminated mutated
-                            words. This function will allocate memory for the array, which
-                            must be freed before program termination
-    
-    @return                 returns the size of the new dictionary in bytes.
+ *  CPU Function that takes in a simple dictionary of plaintext 
+ *  and returns a better dictionary for stronger password cracking.
+ *  
+ *  @params 
+ *  orig_words      pointer to original array of words
+ *  orig_num_words  number of words in the original array
+ *  new_dict        pointer to the new dictionary. must be freed
+ *                  at end of program
 **/
-unsigned long  mutateAndCheck(char *old_dict, 
-        unsigned int size_old_dict, char *new_dict){
+void mutateAndCheck(dict_t *new_dict, dict_t *orig_words,
+            int orig_num_words){
 
     int d;
-    // For an original string of size n including null terminator, we need:
-    // TODO n^2 + 234n + 694
-    unsigned long size_new_dict = size_old_dict*size_old_dict + 234*size_old_dict + 694;
-    new_dict = (char *)malloc(size_new_dict);
-    new_dict[0] = 0;
-    char *dict_end = new_dict;
+    
+    // For an original string of num_entries n including null terminator, we need:
+    // TODO 64 * (n^2 + 234n)
+    new_dict->num_entries = orig_num_words*orig_num_words+234*orig_num_words;
+    new_dict->values = (char *)malloc(64 * new_dict->num_entries);
+    new_dict->values[0] = 0;
+    char *dict_end = new_dict->values;
 
     int i=0;
     /* Iterate over entire section */
-    while (i<size_old_dict){
+    while (i<old_dict->num_entries){
         int wordStart, wordEnd;
         /* Find start and end of word. Last char of word is the DELIM */
         wordStart=i;
@@ -97,7 +95,6 @@ unsigned long  mutateAndCheck(char *old_dict,
         /* Increment index i by 1 to get to start of next word */
         i++;
     }
-    return size_new_dict;
 }
 
 /*  
@@ -106,23 +103,33 @@ unsigned long  mutateAndCheck(char *old_dict,
     the dictionary.
 */
 void add2dict(char *dict_end,  char *word){
-    while(*(++dict_end) = *(word++));
+
+
+
+
 }
 
 int main(int argc, char **argv){
     int i;
-    char orig_dict[11] = "hello";
+
+    init_subs();
+    
+    dict_t orig_dict;
+    char orig_values[11] = "hello";
+    orig_dict.values = &orig_values;
     char *dict_end = &(orig_dict[5]);
     char new_word[5] = "owie";
     char *new_dict = 0;
-    unsigned int size_old_dict = 6;
+    unsigned int old_dict->num_entries = 6;
     add2dict(dict_end, new_word);
-    unsigned long new_dict_size = mutateAndCheck(orig_dict, size_old_dict, new_dict);
+    unsigned long new_dict_num_entries = mutateAndCheck(orig_dict, old_dict->num_entries, new_dict);
 
-    for (i=0;i<new_dict_size;i++){
+    for (i=0;i<new_dict_num_entries;i++){
         if (new_dict[i]) putchar(new_dict[i]);
         else putchar(' ');
     }
+    
+    free(new_dict);
 
     return 0;
 }
