@@ -2,9 +2,9 @@ CC 			= gcc
 DEBUG 		= -g
 CFLAGS		= -c -Wall $(DEBUG) -O3
 LFLAGS		= $(DEBUG)
-DEPEND		= support.o dictman.o
+DEPEND		= support.o
 CPUEXE		= cpu_md5
-CPUOBJ		= $(DEPEND) cpu_md5.o cpu_main.o
+CPUOBJ		= $(DEPEND) cpu_md5.o cpu_main.o dictman.o
 
 NVCC        = nvcc
 NVCC_FLAGS  = -O3 -I/usr/local/cuda/include -arch=sm_20
@@ -26,7 +26,7 @@ $(GPUEXE): $(GPUOBJ)
 	
 gpu: $(GPUEXE)
 
-	cpu: $(CPUEXE)
+cpu: $(CPUEXE)
 
 default: cpu
 

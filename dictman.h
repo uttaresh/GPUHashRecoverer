@@ -1,11 +1,6 @@
 #ifndef __DICT_MANI
 #define __DICT_MANI
 
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
-
-
 // Top 20 most used number sequences
 int sequences[] = { 123,1234,12345,123456,1234567,12345678,
                     123456789,1234567890,696969,111111,

@@ -1,8 +1,6 @@
 #include "dictman.h"
 /* Function declarations */
-unsigned long  mutateAndCheck(char *old_dict, unsigned int num_words, char *new_dict);
-void add2dict(char *dict_end,  char *word);
-
+void mutateAndCheck(char **new_dict, char **old_dict, unsigned int  num_words);
 
 /**
  *  CPU Function that takes in a simple dictionary of plaintext 
@@ -14,19 +12,20 @@ void add2dict(char *dict_end,  char *word);
  *  new_dict        pointer to the new dictionary. must be freed
  *                  at end of program
 **/
-void mutateAndCheck(char **new_dict, char **old_dict, unsigned int num_words){
+void mutateAndCheck(char **newdict, char **olddict, unsigned int numwords){
 
     unsigned int i, z, len, found=0;
+    char temp[10];
   
     /* Loop until all mutations are done. Last mutation will break out */
-    for (int z=0;z<302;z++){
+    for (z=0;z<302;z++){
         /* Copy over original dictionary */
-        for (i=0;i<num_words;i++){
-            memcpy(new_dict[i],old_dict[i],50*sizeof(char));
+        for (i=0;i<numwords;i++){
+            memcpy(newdict[i],olddict[i],50*sizeof(char));
         }
        
         /* Go through each word in the dictionary */
-        for (i=0;i<num_words;i++){
+        for (i=0;i<numwords;i++){
 
            len = strlen(newdict[i]);
             
@@ -70,23 +69,25 @@ void mutateAndCheck(char **new_dict, char **old_dict, unsigned int num_words){
             if (z>=232 && z<=251){
                 // Other common sequences
                 // iterator: z-232
-                strcat(newdict[i],itoa(sequences[z-232]));
+                sprintf(&temp,"%d",sequences[z-252]);
+                strcat(newdict[i],&temp);
             }
 
             if (z>=252){
                 /* Try all with one char-to-symbol substitution
                  * iterator: z-252
                     Ex: shitshell --> $hitshell, sh!tshell, shitsh3ll, etc. */
-                    if (subs[newdict[i][z-252]]){
-                        newdict[z-252] = subs[newdict[z-252]];
+                    if (subs[ (int)(newdict[i][z-252]) ]){
+                        newdict[i][z-252] = subs[ (int)(newdict[i][z-252]) ];
                     }
         
-            /* Terminate loop when number 50 is substituted 
-             * Right now, this is when z=252+50 = 302*/
             
             }            
 
-            /* TODO Call Gaurav's MD5 padding, generation, and checking here */
+            /* Terminate loop when number 50 is substituted 
+             * Right now, this is when z=302*/
+            
+        /* TODO Call Gaurav's MD5 padding, generation, and checking here */
         
         }
 
@@ -97,18 +98,6 @@ void mutateAndCheck(char **new_dict, char **old_dict, unsigned int num_words){
     // TODO
     if (!found)
         printf("\nSorry. Could not crack password.");
-
-}
-
-/*  
-    Function to append a word to the end of a dictionary.
-    dict_end is the pointer to the null terminator at the end of
-    the dictionary.
-*/
-void add2dict(char *dict_end,  char *word){
-
-
-
 
 }
 
