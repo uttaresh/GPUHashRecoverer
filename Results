@@ -1,0 +1,80 @@
+Sorted Dic:
+
+Cuda:
+Num Lines: 751662
+File read time: 0.169341 s
+Host Allocation time: 1.315583 s
+Device allocation time: 0.000272 s
+Copying dictionary to device: 0.017453 s
+Hash generation time: 0.009391 s
+Result copying time: 0.003524 s
+File write time: 1.079692 s
+Total Time: 2.595294 s
+
+
+CPU:
+Num Lines: 751662
+File read time: 0.138987 s
+Host Allocation time: 0.000002 s
+MD5 generation time: 0.176616 s
+File write time: 0.923321 s
+Total Time: 1.239048 s
+
+CPU: Ran it 100 times (75M entries) => 4.41M/sec
+Num Lines: 751662
+File read time: 0.138764 s
+Host Allocation time: 0.000003 s
+MD5 generation time: 17.347893 s
+File write time: 0.000000 s
+Total Time: 17.486702 s
+
+GPU: Ran it 100 times (75M entries) => 32.2M/sec (including copying a dic over to GPU for every run), 100 kernels called
+Num Lines: 751662
+File read time: 0.171439 s
+Host Allocation time: 0.022922 s
+Device allocation time: 0.000339 s
+Hash generation time: 2.335208 s
+Result copying time: 0.003528 s
+GPU time: 2.354170 s
+File write time: 1.038825 s
+Total Time: 3.587387 s
+
+GPU: Ran it 100 times (75M entries) => 127M/sec (only hash generation), 100 kernels called
+Num Lines: 751662
+File read time: 0.171298 s
+Host Allocation time: 0.022538 s
+Device allocation time: 0.000340 s
+Copying dictionary to device: 0.017456 s
+Hash generation time: 0.592218 s
+Result copying time: 0.003527 s
+GPU time: 0.628634 s
+File write time: 1.047045 s
+Total Time: 1.869546 s
+
+GPU: Ran it 1000 times (750M entries) => 127.33M/sec (only hash generation), 1000 kernels called
+Num Lines: 751662
+File read time: 0.172687 s
+Host Allocation time: 0.022377 s
+Device allocation time: 0.000346 s
+Copying dictionary to device: 0.017456 s
+Hash generation time: 5.897979 s
+Result copying time: 0.003550 s
+GPU time: 5.934443 s
+File write time: 1.071921 s
+Total Time: 7.201460 s
+
+GPU: Ran it 1000 times (750M entries) => 1363M/sec each kernel computes hash 1000 times YAY! http://golubev.com/gpuest.htm says for Tesla M2050, single MD5 generation - 1392M/sec. 
+http://en.wikipedia.org/wiki/Comparison_of_Nvidia_graphics_processing_units
+M has slightly faster clock of 3092 Mhz (with C2050 has 3000Mhz) and a little higher bandwidth of 148.4 GB/sec (C2050 has 144 GB/s).
+Num Lines: 751662
+File read time: 0.168858 s
+Host Allocation time: 0.020324 s
+Device allocation time: 0.000341 s
+Copying dictionary to device: 0.017457 s
+Hash generation time: 0.555042 s
+Result copying time: 0.003526 s
+GPU time: 0.591633 s
+File write time: 0.000000 s
+Total Time: 0.780839 s
+
+

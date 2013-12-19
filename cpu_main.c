@@ -1,8 +1,13 @@
 #define _GNU_SOURCE
 #include "support.h"
 #include "cpu_md5.h"
+#include "dictman.h"
+#include "brute_force.h"
 
-void readPwdFromFile(FILE *infile, char ***pwd, unsigned int *numLines){
+char *test;
+uint8_t intTest[16];
+
+void readPwdFromFile(FILE *infile, password **pwd, unsigned int *numLines){
 
 	unsigned int numberOfLines = 0;
 	int ch;
@@ -15,7 +20,11 @@ void readPwdFromFile(FILE *infile, char ***pwd, unsigned int *numLines){
     }
     rewind(infile);
 
-    *pwd = malloc(numberOfLines * sizeof(char*));
+    *pwd = (password*)malloc(numberOfLines*sizeof(password));
+    if(*pwd == NULL){
+        printf("\nERROR: Memory allocation did not complete successfully! Exiting.");
+        exit(0);
+    }
 
     char *line = NULL;
 	size_t len = 0;
@@ -25,66 +34,28 @@ void readPwdFromFile(FILE *infile, char ***pwd, unsigned int *numLines){
 	while (i<numberOfLines) {
 		read_len = getline(&line, &len, infile);
 		if(read_len != -1){
-			if(line[read_len-1] == '\n'){
-                line[read_len-1] = '\0';
-                read_len = read_len - 1;
-            }
-			if(line[read_len-1] == '\r'){
-			    line[read_len-1] = '\0';
-				read_len = read_len - 1;
-            }
-			if((read_len+1) > 55){
-                printf("Skipping (too big) - %s\n",line);
+			if(line[read_len-1] == '\n')    read_len = read_len - 1;
+			if(line[read_len-1] == '\r')    read_len = read_len - 1;
+
+			if(read_len > 45){
+                //printf("Skipping (too big) - %s\n",line);
                 ++toReduce;
             } else {
-                (*pwd)[i-toReduce] = (char*)malloc( (read_len+1)*sizeof(char));
-                memcpy((*pwd)[i-toReduce],line,read_len+1);
+                // (*pwd)[i-toReduce] = (char*)malloc( (read_len+1)*sizeof(char));
+                memcpy((*pwd)[i-toReduce].word,line,read_len);
+                (*pwd)[i-toReduce].length = read_len;
                 //printf("Pwd Read: %s, %d\n", (*pwd)[i], read_len);
 	  		}
 	  	} else {
-	  		break;
+            ++toReduce;
 	  	}
-		free(line);
-		line = NULL;
+        free(line);
+        line = NULL;
 		len = 0;
 	  	i++;
 	}
 	*numLines = numberOfLines-toReduce;
 	//passwd = &pwd;
-}
-
-void preProcessPwd(char **pwd, word64 *plaintext, unsigned int num){
-
-	unsigned int i=0;
-	while(i<num) {
-        //printf("Preprocessing - %s\n",pwd[i]);
-		unsigned int str_len = (unsigned)strlen(pwd[i]);
-		uint8_t *msg = NULL;
-		size_t len;
-		preProcessing((uint8_t*)pwd[i], str_len, &msg, &len);
-		if(len != 56){
-			printf ("Length of - %s - after preprocessing is not 56. Exiting\n", pwd[i]);
-			exit(0);
-		}
-		memcpy(plaintext[i].word, msg, 64);
-		++i;
-		free(msg);
-		msg = NULL;
-	}
-}
-
-void getMD5(word64 *plaintext, word16 *md5Hash, unsigned int num){
-	unsigned int i=0;
-	uint8_t result[16];
-	char *msg;
-	msg = (char*)malloc(64);
-	while(i<num) {
-		memcpy(msg,plaintext[i].word, 64);
-		md5((uint8_t*)msg, 56, result);
-		memcpy(md5Hash[i].word, result, 16);
-		++i;
-	}
-	free(msg);
 }
 
 void writeToFile(word16 *md5Hash, unsigned int num, const char *filename){
@@ -125,24 +96,90 @@ void writeToFile(word16 *md5Hash, unsigned int num, const char *filename){
 	}
 }
 
-void printpwd(char **pwd, unsigned int num){
+inline void printpwd(password *pwd){
+    unsigned int i=0;
+    char *str = pwd->word;
+    while(i < pwd->length) {
+        printf("%c",str[i]);
+		++i;
+	}
+}
+
+
+void printall(password *pwd, unsigned int num){
 	unsigned int i=0;
 	while(i<num) {
-		char *str = pwd[i];
-		printf("Pwd as Stored: %s\n",str);
+		//char *str = pwd[i];
+		printf("Pwd as Stored: ");
+        printpwd(&(pwd[i]));
+		printf("\n");
 		++i;
 	}
 	printf("Num of lines : %d\n",num);
 }
 
+int getMD5(password *pwd, word16 *md5Hash, unsigned int num){
+	unsigned int i=0;
+	//uint8_t result[16];
+	while(i<num) {
+		//memcpy(msg,plaintext[i].word, 64);
+		md5(&(pwd[i]), (uint8_t*)md5Hash->word);
+
+        int flag = 1;
+        unsigned int j=0;
+		while(j<16){
+			if(intTest[j] != (uint8_t)md5Hash->word[j]){
+                flag = 0;
+                break;
+			}
+			++j;
+		}
+        if(flag == 1){
+            printf("\n!!!!PASSWORD FOUND!!!!\nPassword is: ");
+            printpwd(&(pwd[i]));
+            printf("\n\n");
+            return 1;
+        }
+		++i;
+	}
+	return 0;
+	//free(msg);
+}
+
+void hashToUint8(char *charHash, uint8_t intHash[]){
+    char tempChar[16][3];
+    int j=0;
+    while(j<16){
+        tempChar[j][0] = charHash[j*2];
+        tempChar[j][1] = charHash[j*2+1];
+        tempChar[j][2] = '\0';
+        ++j;
+    }
+    j = 0;
+    while(j<16){
+        sscanf(tempChar[j], "%x", (unsigned int*)(&(intHash[j])));
+        ++j;
+    }
+}
+
+
 int main(int argc, char **argv) {
 
+    init_seq();
+
     if (argc < 2) {
-        printf("usage: %s 'file'\n", argv[0]);
+        printf("usage: %s 'stringhash'\n", argv[0]);
         return 1;
     }
 
-    const char *filename = argv[1];
+    test = argv[1];
+    if(strlen(test) != 32){
+        printf ("Invalid hash. Exiting.\n");
+		exit(0);
+    }
+
+    hashToUint8(test,intTest);
+    const char *filename = "plaintext/sorted_dict";
 
     FILE *infile;
     if ((infile = fopen (filename, "r")) == NULL){
@@ -150,42 +187,47 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	Timer totaltimer,filereadtimer, hostalloctime, preprocesstime, MD5time, filewritetime ;
+	Timer totaltimer,filereadtimer, hostalloctime, MD5time, Dicttime;
     startTime(&totaltimer);
 
     startTime(&filereadtimer);
     unsigned int numPwd;
-    char **pwd = NULL;
+    password *pwd;
     readPwdFromFile(infile, &pwd, &numPwd);
-    printf("Num Lines: %d\n",numPwd);
-    //printpwd(pwd, numPwd);
+    printf("Total Dictionary Words: %d\n",numPwd);
+    //printall(pwd, numPwd);
     stopTime(&filereadtimer);
     printf("File read time: %f s\n", elapsedTime(filereadtimer));
 
-    //using static so they get allocated on heap and not on stack which can overflow
-    word64 *plaintext;
-    word16 *md5Hash;
-
     startTime(&hostalloctime);
-    plaintext = (word64*)malloc(numPwd*sizeof(word64));
-    md5Hash = (word16*)malloc(numPwd*sizeof(word16));
+    //word16 *md5Hash;
+    password *pwdArr;
+    pwdArr = (password*)malloc(numPwd*sizeof(password));
+    //md5Hash = (word16*)malloc(numPwd*sizeof(word16));
     stopTime(&hostalloctime);
     printf("Host Allocation time: %f s\n", elapsedTime(hostalloctime));
 
-    startTime(&preprocesstime);
-    preProcessPwd(pwd, plaintext, numPwd);
-    stopTime(&preprocesstime);
-    printf("PreProcessing time: %f s\n", elapsedTime(preprocesstime));
-
     startTime(&MD5time);
-    getMD5(plaintext, md5Hash, numPwd);
-    stopTime(&MD5time);
-    printf("MD5 generation time: %f s\n", elapsedTime(MD5time));
+    unsigned int found = 0;
+    startTime(&Dicttime);
+    found = mutateAndCheck(pwdArr, pwd, numPwd);
+    stopTime(&Dicttime);
+    printf("Dictionary Calculation Time: %f s\n", elapsedTime(Dicttime));
+    if(!found){
+        printf("Couldn't find the password with dictionary manipulation\n");
+        found = brute_force();
+    }
 
-    startTime(&filewritetime);
-    writeToFile(md5Hash, numPwd, filename);
-    stopTime(&filewritetime);
-    printf("File write time: %f s\n", elapsedTime(filewritetime));
+    if(!found){
+        printf("Sorry. Couldn't find the password\n");
+    }
+    stopTime(&MD5time);
+    printf("MD5 Calculation time: %f s\n", elapsedTime(MD5time));
+
+    //startTime(&filewritetime);
+    //writeToFile(md5Hash, numPwd, filename);
+    //stopTime(&filewritetime);
+    //printf("File write time: %f s\n", elapsedTime(filewritetime));
 
     stopTime(&totaltimer);
     printf("Total Time: %f s\n", elapsedTime(totaltimer));

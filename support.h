@@ -10,10 +10,8 @@
 #define __FILEH__
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include <string.h>
 
 typedef struct {
     struct timeval startTime;

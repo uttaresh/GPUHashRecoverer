@@ -7,7 +7,6 @@
  ******************************************************************************/
 
 #include "support.h"
-#include "cpu_md5.h"
 
 void startTime(Timer* timer) {
     gettimeofday(&(timer->startTime), NULL);

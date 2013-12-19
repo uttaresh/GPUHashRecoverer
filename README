@@ -1,11 +1,44 @@
 getMD5 function generates hashes from CPU
 For the GPU version, the function will be the same. Instead of CPU, call for MD5 calculation will be replaced by a kernel
 
-You can take the preprocessing code and use it the way I have used to generate 64 byte aligned array
-to test your program, you can use the cpu_main.c and it's functions to test everything that you develop
-
 To see if the hash being generated is of the string you expect, you can try various online utilities
 https://crackstation.net/ - for reverse lookup in a 15GB wordlist
 http://www.md5hashgenerator.com/ - for generation md5 for string
 
-The code does not consider strings more than 55 bytes. 64 byte is the value after padding and appending the length of string. The string cannot be more than 55 bytes for this to happen. If it has 56 byte, the preprocessed word will have to be 128 byte long as the padding will have to continue till 120 byte and the last 8 byte be reserved for storing length. For the preprocessed word to be of only 64 byte, the max string that it can accomodate is 55 byte.
+The code does not consider strings more than 45 bytes. 64 byte is the value after padding and appending the length of string. The string cannot be more than 55 bytes for this to happen. If it has 56 byte, the preprocessed word will have to be 128 byte long as the padding will have to continue till 120 byte and the last 8 byte be reserved for storing length. For the preprocessed word to be of only 64 byte, the max string that it can accomodate is 55 byte. We have kept extra 10 bytes for padding the password with other values like 1234, etc.
+
+/**************NEW**************/
+
+The password text storage is now of the type password (as in .h file). Also, the passwords are not null terminated as that can take a lot of time and is unnecessary. Instead, we store the length of password string along with it as defined in the structure.
+To work on password modification, just do a memcpy from the master password array and modify the copied array. No issue of null terminated string as the exact length will be stored along with it.
+
+We create multiple array which can hold passwords and their modifications and send them one by one to the GPU.
+
+Preprocessing has been optimized and merged with MD5 generation. CPU and GPU code, both have improved performance now.
+
+One can vary the parameters (work done per thread, num of threads in cuda_md5.h file).
+
+
+RUNNING:
+
+To compile CPU:
+make
+./cpu_md5 <md5hash>
+
+To compile GPU:
+make gpu
+./cuda_md5 <md5hash>
+
+To see the output, see the error file. Currently, it's seg faulting but the output comes out correctly.
+
+For example,
+./cpu_md5 9a1996efc97181f0aee18321aa3b3b12
+where the second string is hash of string 'james12'
+
+To get md5 of a string to use with program,
+make md5
+./md5 <string>
+
+
+
+

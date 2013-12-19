@@ -1,0 +1,24 @@
+[lahoti2@gem project]$ ./md5 aa
+4124bc0a9335c27f086f24ba207a4912
+
+[lahoti2@gem project]$ ./md5 aab
+e62595ee98b585153dac87ce1ab69c3c
+
+[lahoti2@gem project]$ ./md5 haha
+4e4d6c332b6fe62a63afe56171fd3725
+
+[lahoti2@gem project]$ ./md5 patel
+64a43b6ca15d128ac6a0679b39bc9c07
+
+[lahoti2@gem project]$ ./md5 patel94
+19b4d920caa94784609934fca0f68a2c
+
+[lahoti2@gem project]$ ./md5 fzzzza
+afd169a10475013ecb6c26be635f5611
+
+[lahoti2@gem project]$ ./md5 fzzzzag
+c99044a505f209c8fc1989bfa93b432c
+
+[lahoti2@gem project]$ ./md5 fzzzzagj
+7325e1f86e22b6c58807b9474fee1082
+
