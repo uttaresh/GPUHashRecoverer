@@ -8,10 +8,10 @@
 
 const unsigned int BLOCK_SIZE = 128;
 const unsigned int DICT_WORDS_PER_THREAD = 10;
-const unsigned int BRUTE_WORDS_NUM_BLOCKS = 1024;
+const unsigned int BRUTE_WORDS_NUM_BLOCKS = 10240;
 //const char *characters = "abcdefghijklmnopqrstuvwxyz";
 const unsigned int NUM_LETTERS = 26;
-const unsigned int MAX_BRUTE_FORCE_LENGTH = 7;
+const unsigned int MAX_BRUTE_FORCE_LENGTH = 5;
 const unsigned int MAX_GRID_SIZE = 65535;
 
 FILE *logfile;

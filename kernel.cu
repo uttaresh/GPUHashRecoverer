@@ -65,49 +65,45 @@ __device__ inline void getModifiedWord(int z, password *w, password *oldword){
 }
 
 /* Brute force password recovery */
-__global__ void BruteKernel(password *matchPwd, int pass_length, uint64_t words_per_thread, uint64_t total_words, volatile bool *kernelFound) {	
+__global__ void BruteKernel(password *matchPwd, unsigned int pass_length, uint64_t words_per_thread, uint64_t total_words, volatile bool *kernelFound) {	
 
-	int tx = threadIdx.x + blockIdx.x * blockDim.x; // overall thread #
+	unsigned int tx = threadIdx.x + blockIdx.x * blockDim.x; // overall thread #
 	uint64_t start_word = tx*words_per_thread; // the starting index of password this thread checks
-	if(start_word >= total_words)	// exit if the thread is out of bounds
-		return;
 
 	/* initialize variables */
-	uint64_t k;
-	int i;
-	uint64_t curr_word;
+	uint64_t k = 0;
+	unsigned int i = 0;
+	uint64_t curr_word = start_word;
 	password pwd;
-	pwd.length = pass_length;
-	//char word[MAX_PASS_LENGTH] = "";
 	
 	volatile __shared__ bool foundInBlock;
 	uint8_t result[16];	
+	
     if (tx == 0) foundInBlock = *kernelFound;
     __syncthreads();
 
 	/* Each thread checks all the passwords it's assigned to */
-	for(k=0; !foundInBlock && k<words_per_thread ; k++) {		
-		//i=0;
-		curr_word = start_word + k;
+	while((!foundInBlock) && (k < words_per_thread) && (curr_word < total_words)) {
+	
 		memset(&pwd,0,sizeof(password));
 		pwd.length = pass_length;
-		if(curr_word < total_words){
-			/* construct the curr_word #'s password */
-			for(i=0; i<pass_length+1; i++) {
-				pwd.word[pass_length-i] = chars_d[(curr_word % NUM_LETTERS)];
-				curr_word /= NUM_LETTERS;
-			}
-		
-			cuda_md5(&pwd,result);
-			if(cmpResult(result, intTest_d) == 0){
-				memcpy(matchPwd,&pwd,sizeof(password));
-				foundInBlock = true;
-				*kernelFound = true;
-			}
-			//To reduce the global memory traffic
-			if (threadIdx.x == 0 && *kernelFound) foundInBlock = true;
-			//__syncthreads();
+		/* construct the curr_word #'s password */
+		for(i=0; i<pass_length; i++) {
+			pwd.word[pass_length-1-i] = chars_d[(curr_word % NUM_LETTERS)];
+			curr_word /= NUM_LETTERS;
 		}
+		
+		cuda_md5(&pwd,result);
+		if(cmpResult(result, intTest_d) == 0){
+			memcpy(matchPwd,&pwd,sizeof(password));
+			foundInBlock = true;
+			*kernelFound = true;
+		}
+		//To reduce the global memory traffic
+		++curr_word;
+		++k;
+		if (threadIdx.x == 0 && *kernelFound) foundInBlock = true;
+		//__syncthreads();
 	}
 }
 
